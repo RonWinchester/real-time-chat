@@ -3,7 +3,7 @@
   justify-content: center;
   align-items: flex-start;
   max-width: 420px;
-  width:100%;
+  width: 100%;
   padding: 20px;
 }
 
@@ -57,8 +57,11 @@
   cursor: pointer;
   border: none;
   transition: opacity 0.3s linear 0.1s;
-  height: 35px;
   opacity: 0.8;
+}
+
+.login-button {
+  height: 35px;
   background-color: #8c8c8c;
   color: white;
   font-size: 15px;

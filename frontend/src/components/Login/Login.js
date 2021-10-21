@@ -42,7 +42,7 @@ function submit(e) {
       </span>
       <button
           type="submit"
-          className="button"/* {`button ${selector} ${!isValid && 'button_disabled'} `} */
+          className="button login-button"/* {`button ${selector} ${!isValid && 'button_disabled'} `} */
           /* disabled={!isValid} */
         >Войти
         </button>
