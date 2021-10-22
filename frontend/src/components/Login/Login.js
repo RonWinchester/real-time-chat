@@ -1,12 +1,13 @@
 import React from "react";
 import './Login.css'
-import {connectionSocket} from '../../socket'
 
-function Login() {
+function Login({login}) {
+  const [userName, setUserName] = React.useState('');
+  const [roomId, setRoomId] = React.useState('');
 
 function submit(e) {
     e.preventDefault()
-    connectionSocket()
+    login(userName,roomId);
 }
 
   return (
@@ -16,30 +17,27 @@ function submit(e) {
         <input
         required
         type='text'
-        /* value={inputValue} */
+        value={roomId}
         placeholder='Введите номер комнаты'
         name='room'
-        /* id={FormInputId} */
         className="form-input"
         autoComplete="off"
         autoCapitalize="off"
         autoCorrect='off'
+        onChange={(e)=> {setRoomId(e.target.value)}}
       />
       <input
         required
         type='text'
-        /* value={inputValue} */
-        name='room'
-        /* id={FormInputId} */
+        value={userName}
+        name='name'
         className="form-input"
         autoComplete="off"
         autoCapitalize="off"
         autoCorrect='off'
         placeholder='Введите имя'
+        onChange={(e)=> {setUserName(e.target.value)}}
       />
-      <span /* id={FormInputError} */ className="form-input-error">
-        {/* {FormInputErrorName} */}
-      </span>
       <button
           type="submit"
           className="button login-button"/* {`button ${selector} ${!isValid && 'button_disabled'} `} */
