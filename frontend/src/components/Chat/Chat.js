@@ -4,6 +4,7 @@ import socket from "../../socket";
 
 function Chat({ userName, roomId, users, messages, addMessage }) {
   const [texts, setText] = React.useState("");
+  const element = React.useRef(null);
 
   function sendMessage(e) {
     setText(e.target.value);
@@ -24,6 +25,10 @@ function Chat({ userName, roomId, users, messages, addMessage }) {
   const Hour = Data.getHours();
   const Minutes = Data.getMinutes();
 
+  React.useEffect(() => {
+    element.current.scrollTo(0, 99999);
+  }, [messages]);
+
   return (
     <div className="chat">
       <h1 className="chat__title">
@@ -43,7 +48,7 @@ function Chat({ userName, roomId, users, messages, addMessage }) {
           </ul>
         </div>
         <div className="chat-window">
-          <div className="chat-window__area">
+          <div ref={element} className="chat-window__area">
             {messages.map((message, index) => (
               <div className="chat-message" key={index}>
                 <div className="chat-message-info">

@@ -20,6 +20,13 @@ export default function reducer(state, action) {
         messages: [...state.messages, action.payload],
       };
 
+    case "old_message":
+      return {
+        ...state,
+        users: action.payload.users,
+        messages: action.payload.messages,
+      };
+
     default:
       return state;
   }

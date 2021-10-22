@@ -36,8 +36,10 @@ function App() {
         api
           .getUserData(data.roomId)
           .then((res) => {
-            console.log(res);
-            setAllUsers(res.users);
+            dispatch({
+              type: "old_message",
+              payload: res,
+            });
           })
           .catch((err) => {
             console.log(`Ошибка при принятии данных : ${err}`);

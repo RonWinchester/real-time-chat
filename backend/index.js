@@ -68,9 +68,7 @@ io.on("connection", (socket) => {
       userName,
       text,
     };
-    console.log(roomId)
     rooms.get(roomId).get('messages').push(obj);
-    console.log(roomId)
     socket.to(roomId).emit('users-message', obj);
   });
   
