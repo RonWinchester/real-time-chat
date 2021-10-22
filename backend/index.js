@@ -9,7 +9,6 @@ const server = require("http").Server(app);
 const useSocketIo = require("socket.io");
 app.use(cors());
 app.options("*", cors());
-app.use(express.urlencoded({extended: true}))
 
 const PORT = 5000;
 const io = useSocketIo(server, {
@@ -28,6 +27,7 @@ const rooms = new Map();
 
 app.get("/:id", (req, res) => {
   const { id: roomId } = req.params;
+  /* Проверка на наличие комнаты */
   const obj = rooms.has(roomId)
   ? {
       users: [...rooms.get(roomId).get('users').values()],
@@ -37,18 +37,18 @@ app.get("/:id", (req, res) => {
 res.json(obj);
 });
 
-app.post("/", (req, res) => {
+app.post('/', (req, res) => {
   const { roomId, userName } = req.body;
   if (!rooms.has(roomId)) {
     rooms.set(
       roomId,
       new Map([
-        ["users", new Map()],
-        ["messages", []],
-      ])
+        ['users', new Map()],
+        ['messages', []],
+      ]),
     );
   }
-  res.send({ rooms });
+  res.send(roomId);
 });
 
 io.on("connection", (socket) => {
@@ -62,6 +62,18 @@ io.on("connection", (socket) => {
     /* Оповестили пользователей о входе */
     socket.to(roomId).emit("user-joined", users);
   });
+
+  socket.on('users-message', ({ roomId, userName, text }) => {
+    const obj = {
+      userName,
+      text,
+    };
+    console.log(roomId)
+    rooms.get(roomId).get('messages').push(obj);
+    console.log(roomId)
+    socket.to(roomId).emit('users-message', obj);
+  });
+  
 
   socket.on('disconnect', ()=> {
     /* Удаляем пользователя */

@@ -16,10 +16,8 @@ function App() {
     userName: null,
     roomId: null,
     users: [],
-    textMessage: [],
+    messages: [],
   });
-
-  /*   const [loggedIn, setLoggedIn] = React.useState(false); */
 
   function login(userName, roomId) {
     api
@@ -35,12 +33,15 @@ function App() {
         });
 
         socket.emit("user-join", data);
-        api.getUserData(data.roomId).then((res) => {
-          console.log(res);
-          setAllUsers(res.users)
-        }).catch(err=> {
-          console.log(`Ошибка при принятии данных : ${err}`);
-        });
+        api
+          .getUserData(data.roomId)
+          .then((res) => {
+            console.log(res);
+            setAllUsers(res.users);
+          })
+          .catch((err) => {
+            console.log(`Ошибка при принятии данных : ${err}`);
+          });
       })
       .catch((err) => {
         console.log(`Ошибка при отправке данных : ${err}`);
@@ -54,15 +55,23 @@ function App() {
     });
   }
 
+  function addMessage(message) {
+    dispatch({
+      type: "new_message",
+      payload: message,
+    });
+  }
+
   React.useEffect(() => {
     socket.on("user-joined", setAllUsers);
     socket.on("user-esc", setAllUsers);
+    socket.on("users-message", addMessage);
   }, []);
 
   return (
     <div className="App">
       {state.loggedIn ? (
-        <Chat data={state}></Chat>
+        <Chat {...state} addMessage={addMessage}></Chat>
       ) : (
         <Login login={login}></Login>
       )}
