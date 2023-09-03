@@ -1,11 +1,8 @@
 import React, { FC, useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "../styles/Signup.module.css";
+import { IFields } from "../types";
 
-interface IFields {
-	name: string;
-	room: string;
-}
 
 const Signup: FC = () => {
 	const [values, setValues] = useState<IFields>({
