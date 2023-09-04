@@ -22,21 +22,18 @@ const io = new Server(server, {
 		methods: ["GET", "POST"],
 	},
 });
+const userInstance = new User();
 
 io.on("connection", (socket) => {
-	const userInstance = new User();
 
-	socket.on("join", (res) => {
+	socket.on("join", (res: {name: string, room: string}) => {
 		socket.join(res.room);
-
-		const { user, isExist } = userInstance.addUser({
+		const { user } = userInstance.addUser({
 			name: res.name.trim().toLowerCase(),
 			room: res.room.trim().toLowerCase(),
 		});
 
-		const userMessage = isExist
-			? `${user.name}, с возвращением`
-			: `Привет, ${user.name}`;
+		const userMessage = `${user.name}, добро пожаловать!`;
 
 		socket.emit("message", {
 			data: { user: { name: "Admin" }, message: userMessage },
@@ -46,7 +43,10 @@ io.on("connection", (socket) => {
 			data: { user: { name: "Admin" }, message: `${user.name} присоединился` },
 		});
 
-		io.to(user.room).emit("room", {
+		socket.to(user.room).emit("chatroom_users", {
+			data: { users: userInstance.getRoomUsers(user.room) },
+		});
+		socket.emit('chatroom_users', {
 			data: { users: userInstance.getRoomUsers(user.room) },
 		});
 	});
@@ -59,8 +59,8 @@ io.on("connection", (socket) => {
 		}
 	});
 
-	socket.on("leftRoom", ({ params }) => {
-		const user = userInstance.removeUser(params);
+	socket.on("leave_room", ({ name, room }) => {
+		const user = userInstance.removeUser({name, room});
 
 		if (user) {
 			const { room, name } = user;

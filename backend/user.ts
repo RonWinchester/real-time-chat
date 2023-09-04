@@ -16,10 +16,9 @@ class User {
 		if (!isExist) {
 			this.users.push(user);
 		}
-
 		const currentUser = isExist || user;
 
-		return { isExist: !!isExist, user: currentUser };
+		return { user: currentUser };
 	};
 
 	public findUser = (user: UserType): UserType | undefined => {
@@ -29,7 +28,11 @@ class User {
 	public getRoomUsers = (room: string) =>
 		this.users.filter((u) => u.room === room);
 
-	public removeUser = (user: UserType) => {
+	public removeUser = ({ name, room }: UserType) => {
+		const user = {
+			name,
+			room,
+		};
 		const found = this.findUser(user);
 
 		if (found) {
