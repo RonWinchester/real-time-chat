@@ -1,14 +1,28 @@
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import { Route, Routes } from "react-router-dom";
+import { io } from "socket.io-client";
+
 import Signup from "./Signup";
 import Chat from "./Chat";
-const AppRoutes: FC = () => {
-    return (
-        <Routes>
-            <Route path="/" Component={Signup}/>
-            <Route path="/chat" Component={Chat}/>
-        </Routes>
-    )
-}
+import { IFields } from "../types";
 
-export default AppRoutes
+const socket = io("http://localhost:5000");
+
+const AppRoutes: FC = () => {
+	const [user, setUser] = useState<IFields>({
+		name: "",
+		room: "",
+	});
+
+	return (
+		<Routes>
+			<Route
+				path="/"
+				element={<Signup socket={socket} user={user} setUser={setUser} />}
+			/>
+			<Route path="/chat" element={<Chat socket={socket} user={user}/>} />
+		</Routes>
+	);
+};
+
+export default AppRoutes;

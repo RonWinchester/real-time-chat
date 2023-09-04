@@ -1,49 +1,55 @@
 import React, { FC, useEffect, useState } from "react";
 import styles from "../styles/Chat.module.css";
-import { io } from "socket.io-client";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { IFields } from "../types";
+import { Socket } from "socket.io-client";
 
 import icon from "../images/emoji.svg";
 import EmojiPicker from "emoji-picker-react";
-const socket = io("http://localhost:5000");
+interface IChatPage {
+	socket: Socket;
+	user: IFields;
+}
 
-const Chat: FC = () => {
+const Chat: FC<IChatPage> = ({ socket, user }) => {
+	const navigate = useNavigate();
+	const { name, room } = user;
+
 	const { search } = useLocation();
-	const initialParams: IFields = {
-		name: "",
-		room: "",
-	};
-	const [roomParams, setRoomParams] = useState<IFields>(initialParams);
+
 	const [isOpen, setIsOpen] = useState(false);
-	const [message, setMessage] = useState("")
-	useEffect(() => {
-		const searchParams = Object.fromEntries(new URLSearchParams(search));
-		setRoomParams({ name: searchParams.name, room: searchParams.room });
-		socket.emit("join", searchParams);
-	}, [search]);
+	const [message, setMessage] = useState("");
+	const [roomUsers, setRoomUsers] = useState<IFields[]>([]);
 
 	useEffect(() => {
-		socket.on("message", ({ data }) => {
-			console.log("data", data);
+		socket.on("chatroom_users", ({data: {users}}) => {
+			console.log(users);
+			setRoomUsers(users);
 		});
-	}, []);
 
-	const leftRoom = () => {};
+		return () => {
+			socket.off("chatroom_users");
+		};
+	}, [socket]);
+
+	const leftRoom = () => {
+		socket.emit("leave_room", { name, room });
+		navigate("/", { replace: true });
+	};
 
 	const handleSubmit = () => {};
 
 	const handleChange = () => {};
 
 	const onEmojiClick = () => {
-		setIsOpen(!isOpen)
-	}
+		setIsOpen(!isOpen);
+	};
 
 	return (
 		<div className={styles.wrap}>
 			<div className={styles.header}>
-				<div className={styles.title}>{roomParams.room}</div>
-				<div className={styles.users}>0 users in this room</div>
+				<div className={styles.title}>{room}</div>
+				<div className={styles.users}>{roomUsers.length} пользователей</div>
 				<button className={styles.left} onClick={leftRoom}>
 					Left the room
 				</button>

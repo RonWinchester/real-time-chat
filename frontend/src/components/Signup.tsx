@@ -1,25 +1,31 @@
-import React, { FC, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { FC } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "../styles/Signup.module.css";
 import { IFields } from "../types";
+import { Socket } from "socket.io-client";
+interface ISignupPage {
+	socket: Socket;
+	user: IFields;
+	setUser: React.Dispatch<React.SetStateAction<IFields>>;
+}
 
+const Signup: FC<ISignupPage> = ({ socket, user, setUser }) => {
+	const navigate = useNavigate();
 
-const Signup: FC = () => {
-	const [values, setValues] = useState<IFields>({
-		name: "",
-		room: "",
-	});
+	const { name, room } = user;
+
+	const joinRoom = () => {
+		if (room !== "" && name !== "") {
+			socket.emit("join", { name, room });
+		}
+
+		navigate("/chat", { replace: true });
+	};
 
 	const handleChange: React.ChangeEventHandler<HTMLInputElement> = ({
 		target: { name, value },
 	}): void => {
-		setValues({ ...values, [name]: value });
-	};
-
-	const handleClick: React.MouseEventHandler<HTMLAnchorElement> = (e): void => {
-		const isDisabled = Object.values(values).some((v) => !v);
-
-		if (isDisabled) e.preventDefault();
+		setUser({ ...user, [name]: value });
 	};
 
 	return (
@@ -31,7 +37,7 @@ const Signup: FC = () => {
 						<input
 							type="text"
 							name="name"
-							value={values.name}
+							value={name}
 							placeholder="Введите имя"
 							className={styles.input}
 							onChange={handleChange}
@@ -43,7 +49,7 @@ const Signup: FC = () => {
 						<input
 							type="text"
 							name="room"
-							value={values.room}
+							value={room}
 							placeholder="Введите комнату"
 							className={styles.input}
 							onChange={handleChange}
@@ -51,15 +57,11 @@ const Signup: FC = () => {
 							required
 						/>
 					</div>
-					<Link
-						className={styles.group}
-						to={`/chat?name=${values.name}&room=${values.room}`}
-						onClick={handleClick}
-					>
-						<button type="submit" className={styles.button}>
+					<div className={styles.group}>
+						<button type="submit" className={styles.button} onClick={joinRoom}>
 							Присоединиться
 						</button>
-					</Link>
+					</div>
 				</form>
 			</div>
 		</div>
