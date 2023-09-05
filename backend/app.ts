@@ -4,7 +4,7 @@ import { Server } from "socket.io";
 import dotenv from "dotenv";
 import cors from "cors";
 import router from "./route";
-import User from "./user";
+import User, { UserType } from "./user";
 
 dotenv.config();
 
@@ -25,51 +25,54 @@ const io = new Server(server, {
 const userInstance = new User();
 
 io.on("connection", (socket) => {
-
-	socket.on("join", (res: {name: string, room: string}) => {
+	socket.on("join", (res: { name: string; room: string }) => {
 		socket.join(res.room);
 		const { user } = userInstance.addUser({
 			name: res.name.trim().toLowerCase(),
 			room: res.room.trim().toLowerCase(),
 		});
 
-		const userMessage = `${user.name}, добро пожаловать!`;
-
-		socket.emit("message", {
-			data: { user: { name: "Admin" }, message: userMessage },
+		socket.to(user.room).emit("receive_message", {
+			message: `${user.name} has joined the chat room`,
+			name: "CHAT_BOT",
 		});
 
-		socket.broadcast.to(user.room).emit("message", {
-			data: { user: { name: "Admin" }, message: `${user.name} присоединился` },
+		socket.emit("receive_message", {
+			message: `Welcome ${user.name}`,
+			name: "CHAT_BOT",
 		});
 
 		socket.to(user.room).emit("chatroom_users", {
 			data: { users: userInstance.getRoomUsers(user.room) },
 		});
-		socket.emit('chatroom_users', {
+		socket.emit("chatroom_users", {
 			data: { users: userInstance.getRoomUsers(user.room) },
 		});
 	});
 
-	socket.on("sendMessage", ({ message, params }) => {
-		const user = userInstance.findUser(params);
+	socket.on(
+		"send_message",
+		({ message, params }: { message: string; params: UserType }) => {
+			const user = userInstance.findUser(params);
 
-		if (user) {
-			io.to(user.room).emit("message", { data: { user, message } });
+			if (user) {
+				io.in(user.room).emit("send_message", { data: { message, user } });
+			}
 		}
-	});
+	);
 
 	socket.on("leave_room", ({ name, room }) => {
-		const user = userInstance.removeUser({name, room});
-
+		const user = userInstance.removeUser({ name, room });
+		socket.leave(room);
 		if (user) {
 			const { room, name } = user;
 
-			io.to(room).emit("message", {
-				data: { user: { name: "Admin" }, message: `${name} покинул комнату` },
+			io.to(room).emit("receive_message", {
+				name: "CHAT_BOT",
+				message: `${name} покинул комнату`,
 			});
 
-			io.to(room).emit("room", {
+			io.to(room).emit("chatroom_users", {
 				data: { users: userInstance.getRoomUsers(room) },
 			});
 		}

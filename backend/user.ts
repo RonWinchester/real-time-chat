@@ -1,4 +1,4 @@
-type UserType = {
+export type UserType = {
 	name: string;
 	room: string;
 };

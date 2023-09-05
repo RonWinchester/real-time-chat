@@ -6,6 +6,7 @@ import { Socket } from "socket.io-client";
 
 import icon from "../images/emoji.svg";
 import EmojiPicker from "emoji-picker-react";
+import Messages from "./Messages";
 interface IChatPage {
 	socket: Socket;
 	user: IFields;
@@ -22,7 +23,7 @@ const Chat: FC<IChatPage> = ({ socket, user }) => {
 	const [roomUsers, setRoomUsers] = useState<IFields[]>([]);
 
 	useEffect(() => {
-		socket.on("chatroom_users", ({data: {users}}) => {
+		socket.on("chatroom_users", ({ data: { users } }) => {
 			console.log(users);
 			setRoomUsers(users);
 		});
@@ -37,9 +38,18 @@ const Chat: FC<IChatPage> = ({ socket, user }) => {
 		navigate("/", { replace: true });
 	};
 
-	const handleSubmit = () => {};
+	const handleSubmit:React.FormEventHandler<HTMLFormElement> = (e) => {
+		e.preventDefault()
+		const params = user;
+		if (message !== "") {
+			socket.emit("send_message", { message, params });
+			setMessage("");
+		}
+	};
 
-	const handleChange = () => {};
+	const handleChange: React.ChangeEventHandler<HTMLInputElement> = ({
+		target: { value },
+	}) => setMessage(value);
 
 	const onEmojiClick = () => {
 		setIsOpen(!isOpen);
@@ -56,7 +66,7 @@ const Chat: FC<IChatPage> = ({ socket, user }) => {
 			</div>
 
 			<div className={styles.messages}>
-				{/* <Messages messages={state} name={params.name} /> */}
+				<Messages socket={socket} user={name} />
 			</div>
 
 			<form className={styles.form} onSubmit={handleSubmit}>
@@ -82,7 +92,7 @@ const Chat: FC<IChatPage> = ({ socket, user }) => {
 				</div>
 
 				<div className={styles.button}>
-					<input type="submit" onSubmit={handleSubmit} value="Отправить" />
+					<input type="submit" value="Отправить" />
 				</div>
 			</form>
 		</div>
