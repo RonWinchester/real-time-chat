@@ -4,7 +4,8 @@ import { Server } from "socket.io";
 import dotenv from "dotenv";
 import cors from "cors";
 import router from "./route";
-import User, { UserType } from "./user";
+import User, { UserType } from "./models/user";
+import Messages, { IMessage } from "./models/messages";
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ const io = new Server(server, {
 	},
 });
 const userInstance = new User();
+const messagesInstance = new Messages();
 
 io.on("connection", (socket) => {
 	socket.on("join", (res: { name: string; room: string }) => {
@@ -41,6 +43,8 @@ io.on("connection", (socket) => {
 			message: `Welcome ${user.name}`,
 			name: "CHAT_BOT",
 		});
+		const allMessages = messagesInstance.getMessages(user.room);
+		socket.emit("all_messages", allMessages);
 
 		socket.to(user.room).emit("chatroom_users", {
 			data: { users: userInstance.getRoomUsers(user.room) },
@@ -50,16 +54,12 @@ io.on("connection", (socket) => {
 		});
 	});
 
-	socket.on(
-		"send_message",
-		({ message, params }: { message: string; params: UserType }) => {
-			const user = userInstance.findUser(params);
-
-			if (user) {
-				io.in(user.room).emit("send_message", { data: { message, user } });
-			}
-		}
-	);
+	socket.on("send_message", (data: IMessage) => {
+		const { message, name, room, createdTime } = data;
+		messagesInstance.setMessages(data);
+		console.log("data", data)
+		io.in(room).emit("receive_message", { message, name, room, createdTime });
+	});
 
 	socket.on("leave_room", ({ name, room }) => {
 		const user = userInstance.removeUser({ name, room });

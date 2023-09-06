@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from "react";
 import styles from "../styles/Chat.module.css";
 import { useLocation, useNavigate } from "react-router-dom";
-import { IFields } from "../types";
+import { IFields, IMessage } from "../types";
 import { Socket } from "socket.io-client";
 
 import icon from "../images/emoji.svg";
@@ -24,7 +24,6 @@ const Chat: FC<IChatPage> = ({ socket, user }) => {
 
 	useEffect(() => {
 		socket.on("chatroom_users", ({ data: { users } }) => {
-			console.log(users);
 			setRoomUsers(users);
 		});
 
@@ -40,9 +39,13 @@ const Chat: FC<IChatPage> = ({ socket, user }) => {
 
 	const handleSubmit:React.FormEventHandler<HTMLFormElement> = (e) => {
 		e.preventDefault()
-		const params = user;
 		if (message !== "") {
-			socket.emit("send_message", { message, params });
+			socket.emit("send_message", {
+				message: message,
+				name: user.name,
+				room: user.room,
+				createdTime: new Date()
+			});
 			setMessage("");
 		}
 	};

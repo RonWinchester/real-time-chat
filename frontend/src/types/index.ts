@@ -3,4 +3,12 @@ interface IFields {
 	room: string;
 }
 
-export type { IFields };
+interface IMessage {
+	name: string;
+	room: string;
+	createdTime: Date | string;
+	message: string;
+}
+
+
+export type { IFields, IMessage };
