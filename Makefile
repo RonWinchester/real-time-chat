@@ -13,11 +13,11 @@ clean_backend:
 clean_frontend:
 	@docker exec -u root frontend rm -rf /frontend/node_modules
 
-dev_backend: up
+dev_backend: up install_backend
 	@docker exec backend npm run dev
 
-dev_frontend: up
-	@docker exec frontend npm run start
+dev_frontend: up install_frontend
+	@docker exec frontend npm run start &
 
 start_backend: up
 	@docker exec backend npm run start
@@ -25,9 +25,7 @@ start_backend: up
 start_frontend: up
 	@docker exec frontend npm run start
 
-install: up install_backend install_frontend
-
-dev: install dev_backend dev_frontend
+dev: dev_frontend dev_backend
 
 start: up start_backend start_frontend
 
