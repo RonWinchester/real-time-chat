@@ -1,11 +1,11 @@
 import React, { FC, useEffect, useState } from "react";
 import styles from "../styles/Chat.module.css";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { IFields, IMessage } from "../types";
 import { Socket } from "socket.io-client";
 
 import icon from "../images/emoji.svg";
-import EmojiPicker from "emoji-picker-react";
+import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import Messages from "./Messages";
 interface IChatPage {
 	socket: Socket;
@@ -15,8 +15,6 @@ interface IChatPage {
 const Chat: FC<IChatPage> = ({ socket, user }) => {
 	const navigate = useNavigate();
 	const { name, room } = user;
-
-	const { search } = useLocation();
 
 	const [isOpen, setIsOpen] = useState(false);
 	const [message, setMessage] = useState("");
@@ -37,14 +35,14 @@ const Chat: FC<IChatPage> = ({ socket, user }) => {
 		navigate("/", { replace: true });
 	};
 
-	const handleSubmit:React.FormEventHandler<HTMLFormElement> = (e) => {
-		e.preventDefault()
+	const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+		e.preventDefault();
 		if (message !== "") {
 			socket.emit("send_message", {
 				message: message,
 				name: user.name,
 				room: user.room,
-				createdTime: new Date()
+				createdTime: new Date(),
 			});
 			setMessage("");
 		}
@@ -54,8 +52,9 @@ const Chat: FC<IChatPage> = ({ socket, user }) => {
 		target: { value },
 	}) => setMessage(value);
 
-	const onEmojiClick = () => {
+	const onEmojiClick = (emojiData: EmojiClickData) => {
 		setIsOpen(!isOpen);
+		setMessage(message + emojiData.emoji);
 	};
 
 	return (
