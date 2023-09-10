@@ -55,8 +55,11 @@ const Messages: FC<IMessageComponent> = ({ socket, user }) => {
 
 	useEffect(() => {
 		if (messagesColumnRef.current !== null) {
-			messagesColumnRef.current.scrollTop =
-				messagesColumnRef.current.scrollHeight;
+			messagesColumnRef.current.scrollIntoView({
+				behavior: "smooth",
+				block: "end",
+				inline: "nearest",
+			});
 		}
 	}, [messagesRecieved]);
 
@@ -68,14 +71,16 @@ const Messages: FC<IMessageComponent> = ({ socket, user }) => {
 	// Рендер сообщений только при изменении
 	const messageElements = useMemo(() => {
 		return messagesRecieved.map(({ name, message, createdTime }, i) => {
-			const itsMe = name.trim().toLowerCase() === user.trim().toLowerCase();
-			const className = itsMe ? styles.me : styles.user;
+			const currentUser = name.trim().toLowerCase() === user.trim().toLowerCase();
+			const className = currentUser ? styles.currentUser : styles.user;
 
 			return (
 				<div key={i} className={`${styles.message} ${className}`}>
 					<span className={styles.user}>{name}</span>
 					<div className={styles.text}>{message}</div>
-					<span>{formatDateFromTimestamp(createdTime)}</span>
+					<span className={styles.user}>
+						{formatDateFromTimestamp(createdTime)}
+					</span>
 				</div>
 			);
 		});

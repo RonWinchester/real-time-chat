@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from "react";
 import styles from "../styles/Chat.module.css";
 import { useNavigate } from "react-router-dom";
-import { IFields, IMessage } from "../types";
+import { IFields } from "../types";
 import { Socket } from "socket.io-client";
 
 import icon from "../images/emoji.svg";
@@ -61,9 +61,9 @@ const Chat: FC<IChatPage> = ({ socket, user }) => {
 		<div className={styles.wrap}>
 			<div className={styles.header}>
 				<div className={styles.title}>{room}</div>
-				<div className={styles.users}>{roomUsers.length} пользователей</div>
+				<div className={styles.users}>{roomUsers.length} участников</div>
 				<button className={styles.left} onClick={leftRoom}>
-					Left the room
+					Выйти
 				</button>
 			</div>
 
