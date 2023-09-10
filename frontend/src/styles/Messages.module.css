@@ -1,0 +1,50 @@
+.messages {
+	display: flex;
+	flex-direction: column;
+	padding: 32px;
+	row-gap: 20px;
+}
+
+.message {
+	width: max-content;
+	display: flex;
+	flex-direction: column;
+	row-gap: 5px;
+	width: 100%;
+}
+
+.text {
+	padding: 10px;
+	border-radius: 12px;
+	font-size: 15px;
+	color: #fff;
+}
+
+.user {
+	font-size: 14px;
+	color: rgb(176, 176, 176);
+}
+
+.user {
+	align-items: flex-start;
+}
+
+.user .text {
+	background: #514c4c;
+}
+
+.user .user {
+	padding-left: 10px;
+}
+
+.currentUser {
+	align-items: flex-end;
+}
+
+.currentUser .text {
+	background: #0d49d7;
+}
+
+.currentUser .user {
+	padding-right: 10px;
+}
